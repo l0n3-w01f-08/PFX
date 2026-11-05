@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366F1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PFX TRADE | Professional Forex Journal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#070A12',
+                            800: '#0E1322',
+                            700: '#1A2338',
+                            600: '#2A3754'
+                        },
+                        brand: {
+                            500: '#6366F1',
+                            600: '#4F46E5',
+                            glow: 'rgba(99, 102, 241, 0.15)'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-card {
+            background: rgba(14, 19, 34, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-input {
+            background: rgba(26, 35, 56, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-input:focus {
+            border-color: #6366F1;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #070A12; }
+        ::-webkit-scrollbar-thumb { background: #1A2338; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2A3754; }
+    </style>
+</head>
+<body class="bg-dark-900 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-40 w-full border-b border-slate-800/80 bg-dark-900/80 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+           <div class="flex items-center space-x-3">
+                <img src="LOGO.png" alt="Logo" class="h-10 w-auto object-contain rounded-xl">
+                <div>
+                    <span class="text-lg font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">PPFX Trade</span>
+                    <span class="hidden sm:inline-block ml-2 text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-medium">Pro Terminal v2.4</span>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <button onclick="exportData()" class="hidden sm:flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition border border-slate-700">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                    <span>Export CSV</span>
+                </button>
+                <a href="calendar.html" class="px-3 py-2 rounded-xl bg-indigo-600/10 text-indigo-400 border border-indigo-500/30 text-xs font-semibold flex items-center space-x-1.5">
+                    <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                    <span>Calendar View</span>
+                </a>
+                <button onclick="openModal()" class="flex items-center space-x-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-all duration-200 shadow-lg shadow-indigo-600/25 active:scale-95">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>New Trade</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
+        <!-- Welcome Row & Filters -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-white">Execution Dashboard</h1>
+                <p class="text-sm text-slate-400 mt-1">Analyze risk exposure, win probabilities, and detailed market logs.</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div class="glass-card px-3.5 py-2 rounded-xl flex items-center space-x-2 text-xs text-slate-300 border border-slate-800">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-indigo-400"></i>
+                    <span id="storage-status">LocalStorage Active</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard KPI Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Total P/L -->
+            <div class="glass-card rounded-2xl p-5 relative overflow-hidden group hover:border-indigo-500/40 transition-all duration-300">
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-all"></div>
+                <div class="flex items-center justify-between text-slate-400 mb-3">
+                    <span class="text-xs font-semibold uppercase tracking-wider">Total Net P/L</span>
+                    <div class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+                        <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline space-x-2">
+                    <h3 id="stat-total-pl" class="text-2xl font-bold text-emerald-400">$0.00</h3>
+                </div>
+                <p class="text-xs text-slate-500 mt-2">Across <span id="stat-total-trades">0</span> recorded positions</p>
+            </div>
+
+            <!-- Win Rate -->
+            <div class="glass-card rounded-2xl p-5 relative overflow-hidden group hover:border-indigo-500/40 transition-all duration-300">
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-all"></div>
+                <div class="flex items-center justify-between text-slate-400 mb-3">
+                    <span class="text-xs font-semibold uppercase tracking-wider">Win Rate</span>
+                    <div class="p-2 rounded-xl bg-indigo-500/10 text-indigo-400">
+                        <i data-lucide="percent" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline space-x-2">
+                    <h3 id="stat-win-rate" class="text-2xl font-bold text-white">0.0%</h3>
+                    <span id="stat-win-loss-count" class="text-xs text-slate-400 font-medium">0W / 0L</span>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-1.5 mt-3 overflow-hidden">
+                    <div id="stat-win-rate-bar" class="bg-indigo-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Profit Factor -->
+            <div class="glass-card rounded-2xl p-5 relative overflow-hidden group hover:border-indigo-500/40 transition-all duration-300">
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-violet-500/5 rounded-full blur-2xl group-hover:bg-violet-500/10 transition-all"></div>
+                <div class="flex items-center justify-between text-slate-400 mb-3">
+                    <span class="text-xs font-semibold uppercase tracking-wider">Profit Factor</span>
+                    <div class="p-2 rounded-xl bg-violet-500/10 text-violet-400">
+                        <i data-lucide="activity" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline space-x-2">
+                    <h3 id="stat-profit-factor" class="text-2xl font-bold text-white">0.00</h3>
+                    <span class="text-xs text-violet-400 font-medium">Ratio</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-2">Gross Profits / Gross Losses</p>
+            </div>
+
+            <!-- Average R:R Ratio -->
+            <div class="glass-card rounded-2xl p-5 relative overflow-hidden group hover:border-indigo-500/40 transition-all duration-300">
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-all"></div>
+                <div class="flex items-center justify-between text-slate-400 mb-3">
+                    <span class="text-xs font-semibold uppercase tracking-wider">Avg R:R Ratio</span>
+                    <div class="p-2 rounded-xl bg-blue-500/10 text-blue-400">
+                        <i data-lucide="scale" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline space-x-2">
+                    <h3 id="stat-avg-rr" class="text-2xl font-bold text-white">1 : 0.0</h3>
+                    <span class="text-xs text-blue-400 font-medium">Target Spread</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-2">Average planned reward vs risk</p>
+            </div>
+        </div>
+
+        <!-- Trades Table Section -->
+        <div class="glass-card rounded-2xl overflow-hidden border border-slate-800">
+            <div class="p-5 sm:px-6 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white">Trade History & Logs</h2>
+                    <p class="text-xs text-slate-400">Review your past forex setups, execution prices, and notes</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="relative">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                        <input type="text" id="searchInput" onkeyup="filterTrades()" placeholder="Search pair or notes..." class="glass-input pl-9 pr-4 py-2 text-xs rounded-xl text-slate-200 placeholder-slate-500 w-full sm:w-60">
+                    </div>
+                    <select id="filterOutcome" onchange="filterTrades()" class="glass-input px-3 py-2 text-xs rounded-xl text-slate-300 bg-dark-800">
+                        <option value="ALL">All Outcomes</option>
+                        <option value="WIN">Wins Only</option>
+                        <option value="LOSS">Losses Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-800 text-xs font-semibold text-slate-400 uppercase bg-dark-800/40">
+                            <th class="py-3.5 px-6">Date & Pair</th>
+                            <th class="py-3.5 px-4">Direction</th>
+                            <th class="py-3.5 px-4">Price Action (Entry/SL/TP/Exit)</th>
+                            <th class="py-3.5 px-4">Lot Size</th>
+                            <th class="py-3.5 px-4">R:R</th>
+                            <th class="py-3.5 px-4">Net P/L</th>
+                            <th class="py-3.5 px-6 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tradesTableBody" class="divide-y divide-slate-800/60 text-sm">
+                        <!-- Dynamic rows injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for Adding New Trade -->
+    <div id="tradeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm hidden">
+        <div class="glass-card rounded-2xl w-full max-w-xl p-6 m-4 border border-slate-700 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 rounded-xl bg-indigo-500/10 text-indigo-400">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Log New Trade</h3>
+                </div>
+                <button onclick="closeModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="tradeForm" onsubmit="handleTradeSubmit(event)" class="space-y-4 pt-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Date</label>
+                        <input type="date" id="tradeDate" required class="glass-input w-full px-3 py-2 rounded-xl text-sm text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Currency Pair</label>
+                        <input type="text" id="pair" required placeholder="e.g. EUR/USD" class="glass-input w-full px-3 py-2 rounded-xl text-sm text-white placeholder-slate-500 uppercase">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Direction</label>
+                        <select id="direction" class="glass-input w-full px-3 py-2 rounded-xl text-sm text-white bg-dark-800">
+                            <option value="BUY">BUY (Long)</option>
+                            <option value="SELL">SELL (Short)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Entry Price</label>
+                        <input type="number" step="any" id="entryPrice" required placeholder="1.08500" class="glass-input w-full px-3 py-2 rounded-xl text-sm text-white placeholder-slate-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Stop Loss</label>
+                        <input type="number" step="any" id="stopLoss" required placeholder="1.08200" class="glass-input w-full px-3 py-2 rounded-xl text-sm text-white placeholder-slate-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Take Profit</label>
+                        <input type="number" step="any" id="takeProfit" required placeholder="1.09200" class="glass-input w-full px-3 py-2 rounded-xl text-sm text-white placeholder-slate-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Exit Price</label>
+                        <input type="number" step="any" id="exitPrice" required placeholder="1.09100" class="glass-input w-full px-3 py-2 rounded-xl text-sm text-white placeholder-slate-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Lot Size</label>
+                        <input type="number" step="0.01" id="lotSize" required placeholder="1.0" class="glass-input w-full px-3 py-2 rounded-xl text-sm text-white placeholder-slate-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">R:R Ratio</label>
+                        <input type="number" step="0.1" id="rrRatio" required placeholder="2.5" class="glass-input w-full px-3 py-2 rounded-xl text-sm text-white placeholder-slate-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Net P/L ($)</label>
+                        <input type="number" step="0.01" id="plAmount" required placeholder="350.00" class="glass-input w-full px-3 py-2 rounded-xl text-sm text-white placeholder-slate-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Notes / Strategy Setup</label>
+                    <textarea id="notes" rows="2" placeholder="e.g. London session breakout..." class="glass-input w-full px-3 py-2 rounded-xl text-sm text-white placeholder-slate-500"></textarea>
+                </div>
+
+                <!-- Market Structure Screenshot Upload -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Market Structure Screenshot</label>
+                    <input type="file" id="tradeScreenshot" accept="image/*" class="glass-input w-full px-3 py-2 rounded-xl text-xs text-slate-400 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer">
+                </div>
+
+                <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-800">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-sm font-medium hover:bg-slate-700 transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition shadow-lg shadow-indigo-600/25">Save Trade</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 glass-card px-4 py-3 rounded-xl border border-indigo-500/30 flex items-center space-x-3 shadow-2xl">
+        <div id="toastIcon" class="p-1 rounded-full bg-emerald-500/20 text-emerald-400">
+            <i data-lucide="check" class="w-4 h-4"></i>
+        </div>
+        <div>
+            <h4 id="toastTitle" class="text-xs font-bold text-white">Success</h4>
+            <p id="toastMsg" class="text-xs text-slate-300">Action completed successfully.</p>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        const STORAGE_KEY = 'PAUL TRADE J_forex_trades';
+
+        // Load initial trades or default demo trades if empty
+        let trades = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [
+            {
+                id: 1711000001,
+                date: '2026-10-24',
+                pair: 'EUR/USD',
+                direction: 'BUY',
+                entry: 1.08450,
+                sl: 1.08200,
+                tp: 1.09100,
+                exit: 1.09120,
+                lot: 1.5,
+                rr: 2.6,
+                pl: 1005.00,
+                notes: 'London session breakout, clean momentum candle.',
+                screenshot: null
+            },
+            {
+                id: 1711000002,
+                date: '2026-10-25',
+                pair: 'GBP/JPY',
+                direction: 'SELL',
+                entry: 191.20,
+                sl: 191.70,
+                tp: 189.80,
+                exit: 190.10,
+                lot: 1.0,
+                rr: 2.8,
+                pl: 1100.00,
+                notes: 'Daily resistance rejection + RSI divergence.',
+                screenshot: null
+            },
+            {
+                id: 1711000003,
+                date: '2026-10-26',
+                pair: 'AUD/USD',
+                direction: 'BUY',
+                entry: 0.6680,
+                sl: 0.6650,
+                tp: 0.6740,
+                exit: 0.6655,
+                lot: 2.0,
+                rr: 2.0,
+                pl: -500.00,
+                notes: 'Support level failed during US macro data release.',
+                screenshot: null
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('tradeDate').valueAsDate = new Date();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            renderTrades();
+            updateStats();
+        });
+
+        function saveToLocalStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
+        }
+
+        function renderTrades(filteredTrades = trades) {
+            const tbody = document.getElementById('tradesTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (filteredTrades.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-slate-500 text-sm">No trades found in journal. Click "New Trade" to add one.</td></tr>`;
+                return;
+            }
+
+            filteredTrades.forEach(t => {
+                const isWin = t.pl >= 0;
+                const plClass = isWin ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold';
+                const dirBadge = t.direction === 'BUY' 
+                    ? '<span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">BUY</span>'
+                    : '<span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">SELL</span>';
+
+                const screenshotHtml = t.screenshot ? `
+                    <div class="mt-2">
+                        <a href="${t.screenshot}" target="_blank">
+                            <img src="${t.screenshot}" alt="Chart Screenshot" class="w-16 h-12 object-cover rounded-lg border border-slate-700 hover:scale-105 transition shadow-md">
+                        </a>
+                    </div>
+                ` : '';
+
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-dark-800/30 transition-colors group';
+                row.innerHTML = `
+                    <td class="py-4 px-6">
+                        <div class="font-bold text-white">${t.pair}</div>
+                        <div class="text-xs text-slate-400 flex items-center space-x-1 mt-0.5">
+                            <i data-lucide="calendar" class="w-3 h-3 text-indigo-400"></i>
+                            <span>${t.date}</span>
+                        </div>
+                    </td>
+                    <td class="py-4 px-4">${dirBadge}</td>
+                    <td class="py-4 px-4 text-xs font-mono text-slate-300">
+                        <div><span class="text-slate-500">In:</span> ${t.entry} | <span class="text-slate-500">SL:</span> ${t.sl}</div>
+                        <div><span class="text-slate-500">TP:</span> ${t.tp} | <span class="text-slate-500">Out:</span> ${t.exit}</div>
+                        ${t.notes ? `<div class="text-slate-400 italic mt-1 font-sans line-clamp-1 max-w-xs">"${t.notes}"</div>` : ''}
+                        ${screenshotHtml}
+                    </td>
+                    <td class="py-4 px-4 text-xs text-slate-300 font-medium">${t.lot} lots</td>
+                    <td class="py-4 px-4 text-xs text-indigo-400 font-medium">1 : ${t.rr}</td>
+                    <td class="py-4 px-4 text-sm font-mono ${plClass}">${isWin ? '+' : ''}$${t.pl.toFixed(2)}</td>
+                    <td class="py-4 px-6 text-right">
+                        <button onclick="deleteTrade(${t.id})" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition" title="Delete Trade">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function updateStats() {
+            const totalTrades = trades.length;
+            const totalPL = trades.reduce((acc, t) => acc + t.pl, 0);
+            const wins = trades.filter(t => t.pl > 0).length;
+            const losses = trades.filter(t => t.pl < 0).length;
+            const winRate = totalTrades > 0 ? ((wins / totalTrades) * 100).toFixed(1) : 0;
+
+            const grossWins = trades.filter(t => t.pl > 0).reduce((acc, t) => acc + t.pl, 0);
+            const grossLosses = Math.abs(trades.filter(t => t.pl < 0).reduce((acc, t) => acc + t.pl, 0));
+            const profitFactor = grossLosses > 0 ? (grossWins / grossLosses).toFixed(2) : (grossWins > 0 ? '10.0+' : '0.00');
+            const avgRR = totalTrades > 0 ? (trades.reduce((acc, t) => acc + parseFloat(t.rr || 0), 0) / totalTrades).toFixed(1) : '0.0';
+
+            document.getElementById('stat-total-trades').innerText = totalTrades;
+            
+            const plEl = document.getElementById('stat-total-pl');
+            plEl.innerText = `${totalPL >= 0 ? '+' : ''}$${totalPL.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            plEl.className = `text-2xl font-bold ${totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+            document.getElementById('stat-win-rate').innerText = `${winRate}%`;
+            document.getElementById('stat-win-loss-count').innerText = `${wins}W / ${losses}L`;
+            document.getElementById('stat-win-rate-bar').style.width = `${winRate}%`;
+            document.getElementById('stat-profit-factor').innerText = profitFactor;
+            document.getElementById('stat-avg-rr').innerText = `1 : ${avgRR}`;
+        }
+
+        function filterTrades() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const outcomeFilter = document.getElementById('filterOutcome').value;
+
+            const filtered = trades.filter(t => {
+                const matchesQuery = t.pair.toLowerCase().includes(query) || (t.notes && t.notes.toLowerCase().includes(query));
+                if (outcomeFilter === 'WIN') return matchesQuery && t.pl > 0;
+                if (outcomeFilter === 'LOSS') return matchesQuery && t.pl < 0;
+                return matchesQuery;
+            });
+
+            renderTrades(filtered);
+        }
+
+        function openModal() {
+            document.getElementById('tradeModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('tradeModal').classList.add('hidden');
+            document.getElementById('tradeForm').reset();
+            document.getElementById('tradeDate').valueAsDate = new Date();
+        }
+
+        function handleTradeSubmit(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('tradeScreenshot');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(uploadEvent) {
+                    saveNewTradeWithImage(uploadEvent.target.result);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                saveNewTradeWithImage(null);
+            }
+        }
+
+        function saveNewTradeWithImage(imageUrl) {
+            const newTrade = {
+                id: Date.now(),
+                date: document.getElementById('tradeDate').value,
+                pair: document.getElementById('pair').value.toUpperCase(),
+                direction: document.getElementById('direction').value,
+                entry: parseFloat(document.getElementById('entryPrice').value),
+                sl: parseFloat(document.getElementById('stopLoss').value),
+                tp: parseFloat(document.getElementById('takeProfit').value),
+                exit: parseFloat(document.getElementById('exitPrice').value),
+                lot: parseFloat(document.getElementById('lotSize').value),
+                rr: parseFloat(document.getElementById('rrRatio').value),
+                pl: parseFloat(document.getElementById('plAmount').value),
+                notes: document.getElementById('notes').value,
+                screenshot: imageUrl
+            };
+
+            trades.unshift(newTrade);
+            saveToLocalStorage();
+            renderTrades();
+            updateStats();
+            closeModal();
+            showToast("Trade Logged", "Position and market structure screenshot saved.");
+        }
+
+        function deleteTrade(id) {
+            trades = trades.filter(t => t.id !== id);
+            saveToLocalStorage();
+            renderTrades();
+            updateStats();
+            showToast("Trade Removed", "The trade log was deleted.", true);
+        }
+
+        function exportData() {
+            if (trades.length === 0) {
+                showToast("Export Failed", "No trades available to export.", true);
+                return;
+            }
+            let csvContent = "data:text/csv;charset=utf-8,Date,Pair,Direction,Entry,SL,TP,Exit,Lot,RR,PL,Notes\n";
+            trades.forEach(t => {
+                csvContent += `${t.date},${t.pair},${t.direction},${t.entry},${t.sl},${t.tp},${t.exit},${t.lot},${t.rr},${t.pl},"${(t.notes || '').replace(/"/g, '""')}"\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "PAUL TRADE J_trade_journal.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("Export Successful", "CSV file downloaded.");
+        }
+
+        function showToast(title, msg, isWarning = false) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastTitle').innerText = title;
+            document.getElementById('toastMsg').innerText = msg;
+            
+            const iconContainer = document.getElementById('toastIcon');
+            if (isWarning) {
+                iconContainer.className = "p-1 rounded-full bg-rose-500/20 text-rose-400";
+                iconContainer.innerHTML = '<i data-lucide="alert-circle" class="w-4 h-4"></i>';
+            } else {
+                iconContainer.className = "p-1 rounded-full bg-emerald-500/20 text-emerald-400";
+                iconContainer.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i>';
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+    <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then((reg) => console.log('Service Worker registered! Scope:', reg.scope))
+        .catch((err) => console.log('Service Worker registration failed:', err));
+    });
+  }
+</script>
+</body>
+</html>

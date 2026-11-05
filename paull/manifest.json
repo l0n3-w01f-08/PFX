@@ -1,0 +1,21 @@
+{
+  "name": "PPFX Trade Journal",
+  "short_name": "PPFX Journal",
+  "description": "Professional forex trading journal and execution calendar",
+  "start_url": "PAUL TRADE J.html",
+  "display": "standalone",
+  "background_color": "#070A12",
+  "theme_color": "#6366F1",
+  "icons": [
+    {
+      "src": "LOGO.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "LOGO.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

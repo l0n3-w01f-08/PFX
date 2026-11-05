@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PFX TRADE | Execution Calendar</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366F1">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 900: '#070A12', 800: '#0E1322', 700: '#1A2338', 600: '#2A3754' },
+                        brand: { 500: '#6366F1', 600: '#4F46E5', glow: 'rgba(99, 102, 241, 0.15)' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-card { background: rgba(14, 19, 34, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #070A12; }
+    </style>
+</head>
+<body class="bg-dark-900 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+    <header class="sticky top-0 z-40 w-full border-b border-slate-800/80 bg-dark-900/80 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="LOGO.png" alt="Logo" class="h-10 w-auto object-contain rounded-xl" onerror="this.style.display='none'">
+                <div>
+                    <span class="text-lg font-bold tracking-tight text-white">PFX Trade</span>
+                    <span class="hidden sm:inline-block ml-2 text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-medium">Calendar Module</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="PAUL TRADE J .HTML" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition border border-slate-700">Dashboard</a>
+                <a href="calender.html" class="px-3.5 py-2 rounded-xl bg-indigo-600/10 text-indigo-400 border border-indigo-500/30 text-xs font-semibold flex items-center space-x-1.5">
+                    <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                    <span>Calendar View</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 rounded-xl bg-indigo-500/10 text-indigo-400"><i data-lucide="calendar" class="w-5 h-5"></i></div>
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Monthly Trade Map</h2>
+                        <p class="text-xs text-slate-400">Click any date to view executions and setup images</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 bg-dark-800 px-3 py-1.5 rounded-xl border border-slate-800">
+                    <button onclick="changeMonth(-1)" class="p-1 text-slate-400 hover:text-white transition"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                    <span id="calendar-month-year" class="text-xs font-bold text-white px-2">Loading...</span>
+                    <button onclick="changeMonth(1)" class="p-1 text-slate-400 hover:text-white transition"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-dark-800/40 rounded-xl p-4 border border-slate-800/80">
+                    <div class="grid grid-cols-7 gap-2 mb-2 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-2"></div>
+                </div>
+                <div class="bg-dark-800/60 rounded-xl p-4 border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+                            <span id="selected-date-title" class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Select a Date</span>
+                            <span id="selected-date-count" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0 trades</span>
+                        </div>
+                        <div id="selected-date-trades" class="space-y-2.5 max-h-[320px] overflow-y-auto pr-1">
+                            <p class="text-xs text-slate-500 text-center py-10">Click any calendar date.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const STORAGE_KEY = 'PAUL TRADE J_forex_trades';
+
+        function getStoredTrades() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                return saved ? JSON.parse(saved) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        let currentCalendarDate = new Date();
+        let selectedDateString = '';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            const trades = getStoredTrades();
+            if (trades.length > 0) {
+                trades.sort((a, b) => new Date(b.date) - new Date(a.date));
+                selectedDateString = trades[0].date.split('T')[0].trim();
+                const parts = selectedDateString.split('-');
+                if (parts.length === 3) {
+                    currentCalendarDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
+                }
+            } else {
+                selectedDateString = new Date().toISOString().split('T')[0];
+            }
+            renderCalendar();
+            selectCalendarDate(selectedDateString);
+        });
+
+        window.addEventListener('storage', (event) => {
+            if (event.key === STORAGE_KEY) {
+                renderCalendar();
+                selectCalendarDate(selectedDateString);
+            }
+        });
+
+        function changeMonth(dir) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + dir);
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            if (!grid) return;
+            const trades = getStoredTrades();
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
+
+            grid.innerHTML = '';
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const totalDays = new Date(year, month + 1, 0).getDate();
+
+            const tradesMap = {};
+            trades.forEach(t => {
+                if (!t.date) return;
+                const cleanDate = t.date.split('T')[0].trim();
+                if (!tradesMap[cleanDate]) tradesMap[cleanDate] = [];
+                tradesMap[cleanDate].push(t);
+            });
+
+            for (let i = 0; i < firstDayIndex; i++) {
+                const empty = document.createElement('div');
+                empty.className = "h-20 bg-dark-900/20 rounded-lg opacity-30 border border-slate-800/40";
+                grid.appendChild(empty);
+            }
+
+            for (let day = 1; day <= totalDays; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayTrades = tradesMap[dateStr] || [];
+                const hasTrades = dayTrades.length > 0;
+                const dayPL = hasTrades ? dayTrades.reduce((acc, t) => acc + Number(t.pl || 0), 0) : 0;
+                const isProfitable = dayPL >= 0;
+
+                const cell = document.createElement('div');
+                let cellClasses = "h-20 p-2 rounded-xl border flex flex-col justify-between transition cursor-pointer relative ";
+                
+                if (dateStr === selectedDateString) {
+                    cellClasses += "border-indigo-500 bg-indigo-500/10 shadow-lg shadow-indigo-500/15 ";
+                } else if (hasTrades) {
+                    cellClasses += isProfitable ? "border-emerald-500/40 bg-emerald-500/5 hover:border-emerald-500 " : "border-rose-500/40 bg-rose-500/5 hover:border-rose-500 ";
+                } else {
+                    cellClasses += "border-slate-800/80 bg-dark-900/40 hover:border-slate-700 text-slate-500";
+                }
+
+                cell.className = cellClasses;
+                cell.onclick = () => selectCalendarDate(dateStr);
+
+                let badge = '';
+                if (hasTrades) {
+                    badge = `
+                        <div class="mt-auto">
+                            <span class="block text-[10px] font-mono font-bold ${isProfitable ? 'text-emerald-400' : 'text-rose-400'}">
+                                ${isProfitable ? '+' : ''}$${dayPL.toFixed(0)}
+                            </span>
+                            <span class="text-[9px] text-slate-400">${dayTrades.length} trade${dayTrades.length > 1 ? 's' : ''}</span>
+                        </div>
+                    `;
+                }
+
+                cell.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold ${dateStr === selectedDateString ? 'text-indigo-400 font-bold' : 'text-slate-300'}">${day}</span>
+                        ${hasTrades ? `<span class="w-1.5 h-1.5 rounded-full ${isProfitable ? 'bg-emerald-400' : 'bg-rose-400'}"></span>` : ''}
+                    </div>
+                    ${badge}
+                `;
+                grid.appendChild(cell);
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function selectCalendarDate(dateStr) {
+            selectedDateString = dateStr;
+            renderCalendar();
+
+            document.getElementById('selected-date-title').innerText = `Executions on ${dateStr}`;
+            const trades = getStoredTrades();
+            const dayTrades = trades.filter(t => t.date && t.date.split('T')[0].trim() === dateStr);
+            document.getElementById('selected-date-count').innerText = `${dayTrades.length} trade${dayTrades.length === 1 ? '' : 's'}`;
+
+            const container = document.getElementById('selected-date-trades');
+            container.innerHTML = '';
+            if (dayTrades.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-8">No trade executions logged on this date.</p>`;
+                return;
+            }
+
+            dayTrades.forEach(t => {
+                const isWin = Number(t.pl) >= 0;
+                const card = document.createElement('div');
+                card.className = "p-3 rounded-xl bg-dark-900/60 border border-slate-800 space-y-1.5";
+                
+                let imgHtml = t.screenshot ? `
+                    <div class="mt-2">
+                        <span class="text-[10px] text-slate-400 block mb-1">Market Structure:</span>
+                        <a href="${t.screenshot}" target="_blank">
+                            <img src="${t.screenshot}" alt="Setup" class="w-full h-32 object-cover rounded-lg border border-slate-700">
+                        </a>
+                    </div>
+                ` : '';
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-white">${t.pair} (${t.direction})</span>
+                        <span class="text-xs font-mono font-bold ${isWin ? 'text-emerald-400' : 'text-rose-400'}">${isWin ? '+' : ''}$${Number(t.pl).toFixed(2)}</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400">Lot: ${t.lot} | R:R 1:${t.rr}</div>
+                    ${t.notes ? `<p class="text-[11px] text-slate-500 italic mt-1 bg-dark-800 p-2 rounded-lg">"${t.notes}"</p>` : ''}
+                    ${imgHtml}
+                `;
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>

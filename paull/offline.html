@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PPFX TRADE | Offline Mode</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 900: '#070A12', 800: '#0E1322', 700: '#1A2338' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-card { background: rgba(14, 19, 34, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    </style>
+</head>
+<body class="bg-dark-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+    <div class="glass-card rounded-2xl max-w-md w-full p-8 text-center space-y-4 border border-slate-800">
+        <div class="w-16 h-16 bg-indigo-500/10 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto border border-indigo-500/20">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 001.09-.124M13 19l-1 1-1-1m1 1v-3.28m-7.25-3.15A5 5 0 0112 5c3.6 0 6.64 2.5 7.25 5.85m-14.5 0A4.98 4.98 0 003 15m16.25-4.15A4.98 4.98 0 0121 15" />
+            </svg>
+        </div>
+        <h2 class="text-xl font-bold text-white">You Are Offline</h2>
+        <p class="text-xs text-slate-400">Your journal and execution history saved in local storage are still accessible. Check your connection to reload online resources.</p>
+        <button onclick="window.location.reload()" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">
+            Retry Connection
+        </button>
+    </div>
+</body>
+</html>
